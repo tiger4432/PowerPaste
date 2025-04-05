@@ -228,18 +228,7 @@ async function pasteHandler(event) {
 
         if (response.success) {
           console.log('이미지 변환 성공');
-          // 컨플루언스에 이미지 업로드
-          const uploadResponse = await uploadImageToConfluence(response.data);
-          if (uploadResponse.success) {
-            console.log('이미지 업로드 성공:', uploadResponse.url);
-            img.src = uploadResponse.url;
-            img.setAttribute('data-src', uploadResponse.url);
-          } else {
-            console.error("이미지 업로드 실패:", uploadResponse.error);
-            // 업로드 실패 시 base64 사용
-            img.src = response.data;
-            img.setAttribute('data-src', response.data);
-          }
+          img.src = response.data;
         } else {
           console.error("이미지 처리 실패:", response.error);
         }
@@ -260,25 +249,13 @@ async function pasteHandler(event) {
                 console.log('이미지 blob 처리');
                 // Convert to base64
                 const reader = new FileReader();
-                const base64Data = await new Promise((resolve) => {
+                await new Promise((resolve) => {
                   reader.onloadend = function () {
-                    resolve(reader.result);
+                    img.src = reader.result; // Replace with base64 data
+                    resolve();
                   };
                   reader.readAsDataURL(blob);
                 });
-
-                // 컨플루언스에 이미지 업로드
-                const uploadResponse = await uploadImageToConfluence(base64Data);
-                if (uploadResponse.success) {
-                  console.log('이미지 업로드 성공:', uploadResponse.url);
-                  img.src = uploadResponse.url;
-                  img.setAttribute('data-src', uploadResponse.url);
-                } else {
-                  console.error("이미지 업로드 실패:", uploadResponse.error);
-                  // 업로드 실패 시 base64 사용
-                  img.src = base64Data;
-                  img.setAttribute('data-src', base64Data);
-                }
                 break;
               }
             } catch (e) {
@@ -288,17 +265,6 @@ async function pasteHandler(event) {
         }
       }
     }
-
-    // 컨플루언스 호환성을 위한 추가 속성 설정
-    img.setAttribute('data-image-src', img.src);
-    img.setAttribute('data-image-type', 'attachment');
-    img.setAttribute('data-linked-resource-type', 'attachment');
-    img.setAttribute('data-linked-resource-default-alias', 'image.png');
-    img.setAttribute('data-linked-resource-content-type', 'image/png');
-    img.setAttribute('data-linked-resource-container', 'true');
-    img.setAttribute('data-linked-resource-version', '1');
-    img.setAttribute('data-linked-resource-id', '123456789');
-    img.setAttribute('data-base-url', window.location.origin);
   }
 
   // 이미지 처리 후 내용 삽입 부분을 수정
@@ -425,63 +391,4 @@ const observer = new MutationObserver((mutations) => {
 observer.observe(document.body, {
   childList: true,
   subtree: true
-});
-
-// 컨플루언스에 이미지 업로드하는 함수
-async function uploadImageToConfluence(base64Data) {
-  try {
-    // 현재 페이지의 컨플루언스 API 엔드포인트 찾기
-    const pageId = getConfluencePageId();
-    if (!pageId) {
-      return { success: false, error: "컨플루언스 페이지 ID를 찾을 수 없습니다." };
-    }
-
-    // base64 데이터에서 실제 이미지 데이터 추출
-    const imageData = base64Data.split(',')[1];
-    const binaryData = atob(imageData);
-    const arrayBuffer = new ArrayBuffer(binaryData.length);
-    const uint8Array = new Uint8Array(arrayBuffer);
-    for (let i = 0; i < binaryData.length; i++) {
-      uint8Array[i] = binaryData.charCodeAt(i);
-    }
-    const blob = new Blob([arrayBuffer], { type: 'image/png' });
-
-    // FormData 생성
-    const formData = new FormData();
-    formData.append('file', blob, 'image.png');
-
-    // 컨플루언스 API 호출
-    const response = await fetch(`/rest/api/content/${pageId}/child/attachment`, {
-      method: 'POST',
-      headers: {
-        'X-Atlassian-Token': 'no-check'
-      },
-      body: formData
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      return {
-        success: true,
-        url: data.results[0]._links.download
-      };
-    } else {
-      return {
-        success: false,
-        error: `이미지 업로드 실패: ${response.status}`
-      };
-    }
-  } catch (e) {
-    return {
-      success: false,
-      error: `이미지 업로드 중 오류: ${e.message}`
-    };
-  }
-}
-
-// 컨플루언스 페이지 ID를 가져오는 함수
-function getConfluencePageId() {
-  // 현재 URL에서 페이지 ID 추출
-  const match = window.location.pathname.match(/\/pages\/(\d+)/);
-  return match ? match[1] : null;
-} 
+}); 
