@@ -186,7 +186,7 @@ async function pasteHandler(event) {
 
   // 저장된 HTML 내용이 있는 경우 사용
   if (detectedHtmlContent) {
-    console.log('감지된 HTML 내용 사용:', detectedHtmlContent);
+    console.log('감지된 HTML 내용 사용');
     item.innerHTML = detectedHtmlContent;
   } else {
     console.log('HTML 내용이 없습니다. 대체 방법 시도');
@@ -384,12 +384,65 @@ async function pasteHandler(event) {
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       z-index: 9999;
       animation: fadeIn 0.3s ease-in-out;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      cursor: pointer;
     `;
     notification.innerHTML = `
-      <div>엑셀 테이블이 붙여넣기 되었습니다.</div>
-      <div style="font-size: 12px; margin-top: 5px; opacity: 0.8;">PowerPaste by 김경호</div>
+      <div style="font-size: 14px; font-weight: 500;">엑셀 테이블이 붙여넣기 되었습니다.</div>
+      <div style="font-size: 11px; margin-top: 4px; opacity: 0.7; font-style: italic; display: flex; align-items: center; gap: 4px;">
+        <span>by PowerPaste</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </div>
     `;
+
+    // 개발자 정보 팝업 생성
+    const devInfoPopup = document.createElement('div');
+    devInfoPopup.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: white;
+      color: #333;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10000;
+      display: none;
+      max-width: 300px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    `;
+    devInfoPopup.innerHTML = `
+      <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">PowerPaste</div>
+      <div style="font-size: 14px; margin-bottom: 12px; color: #666;">Confluence 호환 엑셀 테이블 붙여넣기</div>
+      <div style="font-size: 13px; color: #888;">
+        <div style="margin-bottom: 4px;">개발자: 김경호</div>
+        <div style="margin-bottom: 4px;">버전: 1.0.0</div>
+        <div>© 2025 KKH</div>
+      </div>
+    `;
+
+    // 알림 클릭 이벤트
+    notification.addEventListener('click', () => {
+      devInfoPopup.style.display = 'block';
+      devInfoPopup.style.animation = 'fadeIn 0.3s ease-in-out';
+    });
+
+    // 팝업 외부 클릭 시 닫기
+    document.addEventListener('click', (e) => {
+      if (!devInfoPopup.contains(e.target) && !notification.contains(e.target)) {
+        devInfoPopup.style.animation = 'fadeOut 0.3s ease-in-out';
+        setTimeout(() => {
+          devInfoPopup.style.display = 'none';
+        }, 300);
+      }
+    });
+
     document.body.appendChild(notification);
+    document.body.appendChild(devInfoPopup);
 
     // 3초 후 알림 제거
     setTimeout(() => {
