@@ -234,6 +234,14 @@ async function pasteHandler(event) {
             console.log('이미지 업로드 성공:', uploadResponse.url);
             img.src = uploadResponse.url;
             img.setAttribute('data-src', uploadResponse.url);
+            img.setAttribute('data-attachment-id', uploadResponse.attachmentId);
+            img.setAttribute('data-linked-resource-id', uploadResponse.attachmentId);
+            img.setAttribute('data-linked-resource-type', 'attachment');
+            img.setAttribute('data-linked-resource-default-alias', 'image.png');
+            img.setAttribute('data-linked-resource-content-type', 'image/png');
+            img.setAttribute('data-linked-resource-container', 'true');
+            img.setAttribute('data-linked-resource-version', '1');
+            img.setAttribute('data-base-url', window.location.origin);
           } else {
             console.error("이미지 업로드 실패:", uploadResponse.error);
             // 업로드 실패 시 base64 사용
@@ -273,6 +281,14 @@ async function pasteHandler(event) {
                   console.log('이미지 업로드 성공:', uploadResponse.url);
                   img.src = uploadResponse.url;
                   img.setAttribute('data-src', uploadResponse.url);
+                  img.setAttribute('data-attachment-id', uploadResponse.attachmentId);
+                  img.setAttribute('data-linked-resource-id', uploadResponse.attachmentId);
+                  img.setAttribute('data-linked-resource-type', 'attachment');
+                  img.setAttribute('data-linked-resource-default-alias', 'image.png');
+                  img.setAttribute('data-linked-resource-content-type', 'image/png');
+                  img.setAttribute('data-linked-resource-container', 'true');
+                  img.setAttribute('data-linked-resource-version', '1');
+                  img.setAttribute('data-base-url', window.location.origin);
                 } else {
                   console.error("이미지 업로드 실패:", uploadResponse.error);
                   // 업로드 실패 시 base64 사용
@@ -461,9 +477,12 @@ async function uploadImageToConfluence(base64Data) {
 
     if (response.ok) {
       const data = await response.json();
+      // 컨플루언스의 blob URL 생성
+      const blobUrl = URL.createObjectURL(blob);
       return {
         success: true,
-        url: data.results[0]._links.download
+        url: blobUrl,
+        attachmentId: data.results[0].id
       };
     } else {
       return {
