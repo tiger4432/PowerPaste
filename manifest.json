@@ -4,21 +4,14 @@
   "version": "1.0.0",
   "description": "Confluence 호환 엑셀 테이블 붙여넣기",
   "author": "김경호",
-  "permissions": [
-    "activeTab",
-    "scripting",
-    "clipboardRead",
-    "clipboardWrite"
-  ],
-  "host_permissions": [
-    "file:///*"
-  ],
+  "permissions": ["activeTab", "scripting", "clipboardRead", "clipboardWrite"],
+  "host_permissions": ["file:///*"],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["file:///*/blank.html", "*://*.atlassian.net/*"],
       "js": ["content.js"]
     }
   ],
@@ -35,6 +28,5 @@
       "128": "images/icon128.png"
     },
     "default_title": "PowerPaste"
-  },
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc/BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ/2W+5JsGY4Hc5n9yBXArwl93lqt7/RN5w6Cf0h4QyQ5v+65YGDOQRGS0T0p/7qVpgtqQxBjDPP9+cYh6zY6OLYxQ9nhP1m3ZeXtmNVgPz3f2Sd0QRfU6qf0s4i02glDwxhP0DCIYrPQJGlaOcfq8pBJU7/N0S8SMWTEs/5JgUaMNlNfDYX+u4aT4B7j8dr+kx1nkxP4zKL4QzGk2xQHawIDAQAB"
-} 
+  }
+}
