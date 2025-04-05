@@ -2,13 +2,13 @@
   "manifest_version": 3,
   "name": "PowerPaste",
   "version": "1.0.0",
-  "description": "엑셀 테이블을 HTML로 변환하여 웹페이지에 붙여넣기 할 수 있는 확장 프로그램입니다.",
+  "description": "Confluence 호환 엑셀 테이블 붙여넣기",
   "author": "김경호",
   "permissions": [
-    "clipboardRead",
-    "clipboardWrite",
     "activeTab",
-    "scripting"
+    "scripting",
+    "clipboardRead",
+    "clipboardWrite"
   ],
   "host_permissions": [
     "file:///*"
@@ -23,16 +23,16 @@
     }
   ],
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
   },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+      "16": "images/icon16.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
     },
     "default_title": "PowerPaste"
   },
