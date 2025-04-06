@@ -4,11 +4,13 @@
 
 // CSS 속성 이름을 camelCase로 변환하는 함수
 function toCamelCase(str) {
-  return str.replace(/-([a-z])/g, function(g) { return g[1].toUpperCase(); });
+  return str.replace(/-([a-z])/g, function (g) {
+    return g[1].toUpperCase();
+  });
 }
 
 // 알림 애니메이션을 위한 CSS 스타일 추가
-const style = document.createElement('style');
+const style = document.createElement("style");
 style.textContent = `
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-20px); }
@@ -25,440 +27,360 @@ document.head.appendChild(style);
 function convertStylesToInline(element) {
   // 중요한 스타일 속성 목록
   const importantStyles = [
-    'background-color',
-    'color',
-    'font-family',
-    'font-size',
-    'font-weight',
-    'text-align',
-    'vertical-align',
-    'border',
-    'border-top',
-    'border-right',
-    'border-bottom',
-    'border-left',
-    'padding',
-    'padding-top',
-    'padding-right',
-    'padding-bottom',
-    'padding-left',
-    'margin',
-    'margin-top',
-    'margin-right',
-    'margin-bottom',
-    'margin-left',
-    'width',
-    'height',
-    'min-width',
-    'min-height',
-    'max-width',
-    'max-height',
-    'display',
-    'position',
-    'top',
-    'right',
-    'bottom',
-    'left',
-    'float',
-    'clear',
-    'overflow',
-    'overflow-x',
-    'overflow-y',
-    'white-space',
-    'text-overflow',
-    'text-decoration',
-    'text-transform',
-    'line-height',
-    'letter-spacing',
-    'word-spacing',
-    'table-layout',
-    'border-collapse',
-    'border-spacing',
-    'empty-cells',
-    'caption-side'
+    "background-color",
+    "color",
+    "font-family",
+    "font-size",
+    "font-weight",
+    "text-align",
+    "vertical-align",
+    "border",
+    "border-top",
+    "border-right",
+    "border-bottom",
+    "border-left",
+    "padding",
+    "padding-top",
+    "padding-right",
+    "padding-bottom",
+    "padding-left",
+    "margin",
+    "margin-top",
+    "margin-right",
+    "margin-bottom",
+    "margin-left",
+    "width",
+    "height",
+    "min-width",
+    "min-height",
+    "max-width",
+    "max-height",
+    "display",
+    "position",
+    "top",
+    "right",
+    "bottom",
+    "left",
+    "float",
+    "clear",
+    "overflow",
+    "overflow-x",
+    "overflow-y",
+    "white-space",
+    "text-overflow",
+    "text-decoration",
+    "text-transform",
+    "line-height",
+    "letter-spacing",
+    "word-spacing",
+    "table-layout",
+    "border-collapse",
+    "border-spacing",
+    "empty-cells",
+    "caption-side",
   ];
 
   // 모든 요소의 스타일을 인라인으로 변환
-  const allElements = element.querySelectorAll('*');
-  allElements.forEach(el => {
+  const allElements = element.querySelectorAll("*");
+  allElements.forEach((el) => {
     const computedStyle = window.getComputedStyle(el);
-    let inlineStyle = '';
-    
+    let inlineStyle = "";
+
     // 중요한 스타일 속성만 인라인으로 변환
-    importantStyles.forEach(property => {
+    importantStyles.forEach((property) => {
       const value = computedStyle.getPropertyValue(property);
-      
+
       // 기본값이 아닌 스타일만 인라인으로 변환
-      if (value && value !== 'none' && value !== 'auto' && value !== 'normal' && 
-          value !== '0px' && value !== '0%' && value !== '0') {
+      if (
+        value &&
+        value !== "none" &&
+        value !== "auto" &&
+        value !== "normal" &&
+        value !== "0px" &&
+        value !== "0%" &&
+        value !== "0"
+      ) {
         inlineStyle += `${property}:${value};`;
       }
     });
-    
+
     if (inlineStyle) {
-      el.setAttribute('style', inlineStyle);
+      el.setAttribute("style", inlineStyle);
     }
   });
 
   // 모든 스타일 태그 제거
-  const styleTags = element.querySelectorAll('style');
-  styleTags.forEach(styleTag => styleTag.remove());
+  const styleTags = element.querySelectorAll("style");
+  styleTags.forEach((styleTag) => styleTag.remove());
 
   // 메타 태그 제거
-  const metaTags = element.querySelectorAll('meta');
-  metaTags.forEach(metaTag => metaTag.remove());
+  const metaTags = element.querySelectorAll("meta");
+  metaTags.forEach((metaTag) => metaTag.remove());
 
   // link 태그 제거
-  const linkTags = element.querySelectorAll('link');
-  linkTags.forEach(linkTag => linkTag.remove());
+  const linkTags = element.querySelectorAll("link");
+  linkTags.forEach((linkTag) => linkTag.remove());
 
   // 모든 스타일이 인라인으로 변환된 후 클래스 제거
-  const tableElements = element.querySelectorAll('td, th, tr, table');
-  tableElements.forEach(el => el.removeAttribute('class'));
+  const tableElements = element.querySelectorAll("td, th, tr, table");
+  tableElements.forEach((el) => el.removeAttribute("class"));
 
   return element;
 }
 
-async function pasteHandler(event) {
-  console.log('=== 붙여넣기 이벤트 시작 ===');
-  
-  // 이벤트가 이미 처리되었는지 확인
-  if (event.defaultPrevented) {
-    console.log('이벤트가 이미 처리되었습니다.');
-    return;
+// 붙여넣기 이벤트를 다시 발생시키는 함수
+function simulatePasteEvent(targetElement) {
+  console.log("기본 붙여넣기 이벤트를 다시 발생시킵니다.");
+
+  // 현재 포커스된 요소 저장
+  const activeElement = document.activeElement;
+
+  // 대상 요소에 포커스
+  targetElement.focus();
+
+  // 임시 이벤트 리스너 추가
+  const handlePaste = (e) => {
+    e.isSimulated = true;
+    document.removeEventListener("paste", handlePaste, true);
+  };
+  document.addEventListener("paste", handlePaste, true);
+
+  // execCommand를 사용하여 붙여넣기 실행
+  document.execCommand("paste");
+
+  // 원래 포커스된 요소로 돌아가기
+  if (activeElement) {
+    activeElement.focus();
   }
-  
-  let clipboardData = event.clipboardData || window.clipboardData;
+}
+
+// 클립보드에서 HTML 데이터를 가져오는 함수
+async function getClipboardHtml(clipboardData) {
   if (!clipboardData) {
-    console.log('클립보드 데이터가 없습니다.');
-    return;
+    console.log("클립보드 데이터가 없습니다.");
+    return null;
   }
-
-  console.log('클립보드 데이터:', clipboardData);
-
-  // 엑셀에서 복사한 데이터인지 확인
-  let isExcelData = false;
-  let detectedHtmlContent = "";  // HTML 내용을 저장할 변수 추가
 
   if (clipboardData.items) {
-    console.log('클립보드 항목:', clipboardData.items);
     const items = Array.from(clipboardData.items);
     for (const dataItem of items) {
-      console.log('클립보드 항목 타입:', dataItem.type);
       if (dataItem.type === "text/html") {
         try {
           const htmlContent = await new Promise((resolve) => {
             dataItem.getAsString((string) => resolve(string));
           });
-          console.log('HTML 내용:', htmlContent);
-          
-          // 엑셀에서 복사한 데이터는 일반적으로 table 태그를 포함
-          if (htmlContent && htmlContent.includes('<table')) {
-            console.log('엑셀 데이터 감지됨');
-            isExcelData = true;
-            detectedHtmlContent = htmlContent;  // HTML 내용 저장
-            break;
+          if (htmlContent && htmlContent.includes("<table")) {
+            return htmlContent;
           }
         } catch (e) {
-          console.error('HTML 데이터 가져오기 실패:', e);
+          console.error("HTML 데이터 가져오기 실패:", e);
         }
       }
     }
   } else {
     // 구형 브라우저 지원
     const htmlContent = clipboardData.getData("text/html");
-    console.log('구형 브라우저 HTML 내용:', htmlContent);
-    if (htmlContent && htmlContent.includes('<table')) {
-      console.log('엑셀 데이터 감지됨 (구형 브라우저)');
-      isExcelData = true;
-      detectedHtmlContent = htmlContent;  // HTML 내용 저장
+    if (htmlContent && htmlContent.includes("<table")) {
+      return htmlContent;
     }
   }
+  return null;
+}
 
-  // 엑셀 데이터가 아닌 경우 기본 붙여넣기 이벤트 실행
-  if (!isExcelData) {
-    console.log('엑셀 데이터가 아닙니다. 기본 붙여넣기 실행');
-    return;
-  }
-
-  console.log('엑셀 데이터 처리 시작');
-  const item = document.createElement("div");
-
-  // 저장된 HTML 내용이 있는 경우 사용
-  if (detectedHtmlContent) {
-    console.log('감지된 HTML 내용 사용');
-    item.innerHTML = detectedHtmlContent;
-  } else {
-    console.log('HTML 내용이 없습니다. 대체 방법 시도');
-    try {
-      const htmlContent = clipboardData.getData("text/html");
-      console.log('대체 방법으로 가져온 HTML:', htmlContent);
-      if (htmlContent) {
-        item.innerHTML = htmlContent;
-      } else {
-        console.log('모든 방법으로 HTML 내용을 가져오는데 실패했습니다.');
-        return;
-      }
-    } catch (e) {
-      console.error('대체 방법으로 HTML 가져오기 실패:', e);
-      return;
-    }
-  }
-
-  // 이미지 처리
-  console.log('이미지 처리 시작');
+// 이미지를 처리하는 함수
+async function processImages(item) {
   const images = item.querySelectorAll("img");
-  console.log('발견된 이미지 수:', images.length);
-
-  // Process each image
-  for (let i = 0; i < images.length; i++) {
-    const img = images[i];
+  for (const img of images) {
     const src = img.src;
-    console.log('이미지 처리:', src);
-
-    // Check if image is from file:// protocol
-    if (src.startsWith('file://')) {
-      console.log('file:// 프로토콜 이미지 처리');
+    if (src.startsWith("file://")) {
       try {
-        // Background script를 통해 이미지 처리
         const response = await chrome.runtime.sendMessage({
-          type: 'convertImageToBase64',
-          url: src
+          type: "convertImageToBase64",
+          url: src,
         });
 
         if (response.success) {
-          console.log('이미지 변환 성공');
-          // 컨플루언스에 이미지 업로드
           const uploadResponse = await uploadImageToConfluence(response.data);
           if (uploadResponse.success) {
-            console.log('이미지 업로드 성공:', uploadResponse.url);
             img.src = uploadResponse.url;
-            img.setAttribute('data-src', uploadResponse.url);
-            img.setAttribute('data-attachment-id', uploadResponse.attachmentId);
-            img.setAttribute('data-linked-resource-id', uploadResponse.attachmentId);
-            img.setAttribute('data-linked-resource-type', 'attachment');
-            img.setAttribute('data-linked-resource-default-alias', 'image.png');
-            img.setAttribute('data-linked-resource-content-type', 'image/png');
-            img.setAttribute('data-linked-resource-container', 'true');
-            img.setAttribute('data-linked-resource-version', '1');
-            img.setAttribute('data-base-url', window.location.origin);
+            img.setAttribute("data-src", uploadResponse.url);
+            img.setAttribute("data-attachment-id", uploadResponse.attachmentId);
+            img.setAttribute(
+              "data-linked-resource-id",
+              uploadResponse.attachmentId
+            );
+            img.setAttribute("data-linked-resource-type", "attachment");
+            img.setAttribute("data-linked-resource-default-alias", "image.png");
+            img.setAttribute("data-linked-resource-content-type", "image/png");
+            img.setAttribute("data-linked-resource-container", "true");
+            img.setAttribute("data-linked-resource-version", "1");
+            img.setAttribute("data-base-url", window.location.origin);
           } else {
-            console.error("이미지 업로드 실패:", uploadResponse.error);
-            // 업로드 실패 시 base64 사용
             img.src = response.data;
-            img.setAttribute('data-src', response.data);
+            img.setAttribute("data-src", response.data);
           }
-        } else {
-          console.error("이미지 처리 실패:", response.error);
         }
       } catch (e) {
         console.error("이미지 처리 중 오류:", e);
       }
-    } else {
-      console.log('클립보드 이미지 처리');
-      // Check if there's a corresponding image file in clipboard items
-      if (clipboardData.items) {
-        const items = Array.from(clipboardData.items);
-        for (const dataItem of items) {
-          if (dataItem.type.startsWith("image/")) {
-            try {
-              // Get image as blob
-              const blob = dataItem.getAsFile();
-              if (blob) {
-                console.log('이미지 blob 처리');
-                // Convert to base64
-                const reader = new FileReader();
-                const base64Data = await new Promise((resolve) => {
-                  reader.onloadend = function () {
-                    resolve(reader.result);
-                  };
-                  reader.readAsDataURL(blob);
-                });
-
-                // 컨플루언스에 이미지 업로드
-                const uploadResponse = await uploadImageToConfluence(base64Data);
-                if (uploadResponse.success) {
-                  console.log('이미지 업로드 성공:', uploadResponse.url);
-                  img.src = uploadResponse.url;
-                  img.setAttribute('data-src', uploadResponse.url);
-                  img.setAttribute('data-attachment-id', uploadResponse.attachmentId);
-                  img.setAttribute('data-linked-resource-id', uploadResponse.attachmentId);
-                  img.setAttribute('data-linked-resource-type', 'attachment');
-                  img.setAttribute('data-linked-resource-default-alias', 'image.png');
-                  img.setAttribute('data-linked-resource-content-type', 'image/png');
-                  img.setAttribute('data-linked-resource-container', 'true');
-                  img.setAttribute('data-linked-resource-version', '1');
-                  img.setAttribute('data-base-url', window.location.origin);
-                } else {
-                  console.error("이미지 업로드 실패:", uploadResponse.error);
-                  // 업로드 실패 시 base64 사용
-                  img.src = base64Data;
-                  img.setAttribute('data-src', base64Data);
-                }
-                break;
-              }
-            } catch (e) {
-              console.error("이미지 처리 중 오류:", e);
-            }
-          }
-        }
-      }
     }
+  }
+}
 
-    // 컨플루언스 호환성을 위한 추가 속성 설정
-    img.setAttribute('data-image-src', img.src);
-    img.setAttribute('data-image-type', 'attachment');
-    img.setAttribute('data-linked-resource-type', 'attachment');
-    img.setAttribute('data-linked-resource-default-alias', 'image.png');
-    img.setAttribute('data-linked-resource-content-type', 'image/png');
-    img.setAttribute('data-linked-resource-container', 'true');
-    img.setAttribute('data-linked-resource-version', '1');
-    img.setAttribute('data-linked-resource-id', '123456789');
-    img.setAttribute('data-base-url', window.location.origin);
+// 내용을 삽입하는 함수
+function insertContent(item, targetElement) {
+  if (!targetElement || !targetElement.parentNode) {
+    console.log("대상 요소를 찾을 수 없습니다. body에 직접 삽입합니다.");
+    document.body.appendChild(item);
+    return;
   }
 
-  // 이미지 처리 후 내용 삽입 부분을 수정
-  try {
-    console.log('내용 삽입 시작');
-    // 이벤트가 발생한 요소 찾기
-    const targetElement = event.target;
-    console.log('대상 요소:', targetElement);
-    
-    // iframe 내부에서 발생한 경우 처리
-    let targetDocument;
-    if (targetElement.tagName === 'IFRAME') {
-      console.log('iframe 내부에서 발생');
-      targetDocument = targetElement.contentDocument || targetElement.contentWindow.document;
-    } else if (targetElement.ownerDocument !== document) {
-      console.log('다른 문서에서 발생');
-      targetDocument = targetElement.ownerDocument;
-    } else {
-      console.log('현재 문서에서 발생');
-      targetDocument = document;
-    }
-
-    // 현재 요소의 다음 위치에 삽입
-    if (targetElement && targetElement.parentNode) {
-      console.log('대상 요소의 부모 노드에 삽입');
-      if (targetElement.nextSibling) {
-        console.log('다음 형제 요소 앞에 삽입');
-        targetElement.parentNode.insertBefore(item, targetElement.nextSibling);
-      } else {
-        console.log('부모 요소의 마지막 자식으로 삽입');
-        targetElement.parentNode.appendChild(item);
-      }
-      
-      // 요소가 DOM에 삽입된 후 스타일을 인라인으로 변환
-      setTimeout(() => {
-        console.log('스타일 인라인 변환 시작');
-        convertStylesToInline(item);
-        console.log('스타일 인라인 변환 완료');
-      }, 0);
-      
-      // 스크롤을 삽입된 위치로 이동
-      item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    } else {
-      console.log('body에 직접 삽입');
-      // 대상 요소를 찾을 수 없는 경우 body에 추가
-      targetDocument.body.appendChild(item);
-      
-      // 요소가 DOM에 삽입된 후 스타일을 인라인으로 변환
-      setTimeout(() => {
-        console.log('스타일 인라인 변환 시작');
-        convertStylesToInline(item);
-        console.log('스타일 인라인 변환 완료');
-      }, 0);
-    }
-
-    // 알림 표시
-    console.log('알림 표시');
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background-color: #4CAF50;
-      color: white;
-      padding: 15px 25px;
-      border-radius: 4px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      z-index: 9999;
-      animation: fadeIn 0.3s ease-in-out;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      cursor: pointer;
-    `;
-    notification.innerHTML = `
-      <div style="font-size: 14px; font-weight: 500;">엑셀 테이블이 붙여넣기 되었습니다.</div>
-      <div style="font-size: 11px; margin-top: 4px; opacity: 0.7; font-style: italic; display: flex; align-items: center; gap: 4px;">
-        <span>by PowerPaste</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="16" x2="12" y2="12"></line>
-          <line x1="12" y1="8" x2="12.01" y2="8"></line>
-        </svg>
-      </div>
-    `;
-
-    // 개발자 정보 팝업 생성
-    const devInfoPopup = document.createElement('div');
-    devInfoPopup.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background-color: white;
-      color: #333;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      z-index: 10000;
-      display: none;
-      max-width: 300px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    `;
-    devInfoPopup.innerHTML = `
-      <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">PowerPaste</div>
-      <div style="font-size: 14px; margin-bottom: 12px; color: #666;">Confluence 호환 엑셀 테이블 붙여넣기</div>
-      <div style="font-size: 13px; color: #888;">
-        <div style="margin-bottom: 4px;">개발자: 김경호</div>
-        <div style="margin-bottom: 4px;">버전: 1.0.0</div>
-        <div>© 2025 KKH</div>
-      </div>
-    `;
-
-    // 알림 클릭 이벤트
-    notification.addEventListener('click', () => {
-      devInfoPopup.style.display = 'block';
-      devInfoPopup.style.animation = 'fadeIn 0.3s ease-in-out';
-    });
-
-    // 팝업 외부 클릭 시 닫기
-    document.addEventListener('click', (e) => {
-      if (!devInfoPopup.contains(e.target) && !notification.contains(e.target)) {
-        devInfoPopup.style.animation = 'fadeOut 0.3s ease-in-out';
-        setTimeout(() => {
-          devInfoPopup.style.display = 'none';
-        }, 300);
-      }
-    });
-
-    document.body.appendChild(notification);
-    document.body.appendChild(devInfoPopup);
-
-    // 3초 후 알림 제거
-    setTimeout(() => {
-      notification.style.animation = 'fadeOut 0.3s ease-in-out';
-      setTimeout(() => notification.remove(), 300);
-    }, 3000);
-
-  } catch (e) {
-    console.error("내용 삽입 중 오류:", e);
-    return; // 실패 시 기본 동작 허용
+  if (targetElement.nextSibling) {
+    targetElement.parentNode.insertBefore(item, targetElement.nextSibling);
+  } else {
+    targetElement.parentNode.appendChild(item);
   }
 
-  // 기본 붙여넣기 동작 방지
+  // 스타일을 인라인으로 변환
+  setTimeout(() => {
+    convertStylesToInline(item);
+  }, 0);
+
+  // 스크롤을 삽입된 위치로 이동
+  item.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// 알림을 표시하는 함수
+function showNotification() {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 9999;
+    animation: fadeIn 0.3s ease-in-out;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    cursor: pointer;
+  `;
+  notification.innerHTML = `
+    <div style="font-size: 14px; font-weight: 500;">엑셀 테이블이 붙여넣기 되었습니다.</div>
+    <div style="font-size: 11px; margin-top: 4px; opacity: 0.7; font-style: italic; display: flex; align-items: center; gap: 4px;">
+      <span>by PowerPaste</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+    </div>
+  `;
+
+  document.body.appendChild(notification);
+
+  // 3초 후 알림 제거
+  setTimeout(() => {
+    notification.style.animation = "fadeOut 0.3s ease-in-out";
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+let isPowerPasteEnabled = true;
+let indicatorElement = null;
+
+// 초기 상태 로드
+chrome.storage.local.get(["powerPasteEnabled"], function (result) {
+  console.log("초기 상태 로드:", result);
+  isPowerPasteEnabled = result.powerPasteEnabled !== false; // 기본값은 true
+  console.log("초기 PowerPaste 상태:", isPowerPasteEnabled);
+  updateIndicator();
+});
+
+// 메시지 리스너
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("메시지 수신:", message);
+
+  if (message.action === "updatePowerPasteStatus") {
+    console.log("PowerPaste 상태 업데이트 메시지 수신:", message.enabled);
+    isPowerPasteEnabled = message.enabled;
+    updateIndicator();
+    console.log("PowerPaste 상태 업데이트 완료:", isPowerPasteEnabled);
+    sendResponse({ success: true });
+  }
+  return true; // 비동기 응답을 위해 true 반환
+});
+
+// 상태 표시기 업데이트
+function updateIndicator() {
+  console.log("상태 표시기 업데이트 시작:", isPowerPasteEnabled);
+
+  if (!indicatorElement) {
+    indicatorElement = document.createElement("div");
+    indicatorElement.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      z-index: 999999;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    `;
+    document.body.appendChild(indicatorElement);
+    console.log("상태 표시기 요소 생성 완료");
+  }
+
+  if (isPowerPasteEnabled) {
+    indicatorElement.style.backgroundColor = "#2E7D32"; // 더 진한 초록색
+    console.log("상태 표시기 색상 변경: 활성화");
+  } else {
+    indicatorElement.style.backgroundColor = "transparent";
+    console.log("상태 표시기 색상 변경: 비활성화");
+  }
+}
+
+// 초기 상태 표시기 생성
+updateIndicator();
+
+async function pasteHandler(event) {
+  // PowerPaste가 비활성화된 경우 기본 이벤트 실행
+  if (!isPowerPasteEnabled) {
+    return;
+  }
+
+  console.log("=== 붙여넣기 이벤트 시작 ===");
+
+  if (event.defaultPrevented) {
+    console.log("이벤트가 이미 처리되었습니다.");
+    return;
+  }
+
   event.preventDefault();
   event.stopPropagation();
-  console.log('=== 붙여넣기 이벤트 완료 ===');
+
+  const clipboardData = event.clipboardData || window.clipboardData;
+  if (!clipboardData) {
+    console.log("클립보드 데이터가 없습니다.");
+    return;
+  }
+
+  const htmlContent = await getClipboardHtml(clipboardData);
+  if (!htmlContent) {
+    console.log("엑셀 데이터가 아닙니다.");
+    return;
+  }
+
+  const item = document.createElement("div");
+  item.innerHTML = htmlContent;
+
+  await processImages(item);
+  insertContent(item, event.target);
+  showNotification();
+
+  console.log("=== 붙여넣기 이벤트 완료 ===");
 }
 
 // Add paste event listener to the document
@@ -493,7 +415,7 @@ const observer = new MutationObserver((mutations) => {
 // Start observing the document with the configured parameters
 observer.observe(document.body, {
   childList: true,
-  subtree: true
+  subtree: true,
 });
 
 // 컨플루언스에 이미지 업로드하는 함수
@@ -502,31 +424,37 @@ async function uploadImageToConfluence(base64Data) {
     // 현재 페이지의 컨플루언스 API 엔드포인트 찾기
     const pageId = getConfluencePageId();
     if (!pageId) {
-      return { success: false, error: "컨플루언스 페이지 ID를 찾을 수 없습니다." };
+      return {
+        success: false,
+        error: "컨플루언스 페이지 ID를 찾을 수 없습니다.",
+      };
     }
 
     // base64 데이터에서 실제 이미지 데이터 추출
-    const imageData = base64Data.split(',')[1];
+    const imageData = base64Data.split(",")[1];
     const binaryData = atob(imageData);
     const arrayBuffer = new ArrayBuffer(binaryData.length);
     const uint8Array = new Uint8Array(arrayBuffer);
     for (let i = 0; i < binaryData.length; i++) {
       uint8Array[i] = binaryData.charCodeAt(i);
     }
-    const blob = new Blob([arrayBuffer], { type: 'image/png' });
+    const blob = new Blob([arrayBuffer], { type: "image/png" });
 
     // FormData 생성
     const formData = new FormData();
-    formData.append('file', blob, 'image.png');
+    formData.append("file", blob, "image.png");
 
     // 컨플루언스 API 호출
-    const response = await fetch(`/rest/api/content/${pageId}/child/attachment`, {
-      method: 'POST',
-      headers: {
-        'X-Atlassian-Token': 'no-check'
-      },
-      body: formData
-    });
+    const response = await fetch(
+      `/rest/api/content/${pageId}/child/attachment`,
+      {
+        method: "POST",
+        headers: {
+          "X-Atlassian-Token": "no-check",
+        },
+        body: formData,
+      }
+    );
 
     if (response.ok) {
       const data = await response.json();
@@ -535,18 +463,18 @@ async function uploadImageToConfluence(base64Data) {
       return {
         success: true,
         url: blobUrl,
-        attachmentId: data.results[0].id
+        attachmentId: data.results[0].id,
       };
     } else {
       return {
         success: false,
-        error: `이미지 업로드 실패: ${response.status}`
+        error: `이미지 업로드 실패: ${response.status}`,
       };
     }
   } catch (e) {
     return {
       success: false,
-      error: `이미지 업로드 중 오류: ${e.message}`
+      error: `이미지 업로드 중 오류: ${e.message}`,
     };
   }
 }
@@ -556,4 +484,4 @@ function getConfluencePageId() {
   // 현재 URL에서 페이지 ID 추출
   const match = window.location.pathname.match(/\/pages\/(\d+)/);
   return match ? match[1] : null;
-} 
+}

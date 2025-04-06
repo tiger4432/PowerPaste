@@ -1,17 +1,23 @@
 {
   "manifest_version": 3,
   "name": "PowerPaste",
-  "version": "1.0.0",
-  "description": "Confluence 호환 엑셀 테이블 붙여넣기",
+  "version": "1.0",
+  "description": "엑셀 테이블을 HTML로 변환하여 웹페이지에 붙여넣기",
   "author": "김경호",
-  "permissions": ["activeTab", "scripting", "clipboardRead", "clipboardWrite"],
-  "host_permissions": ["file:///*"],
+  "permissions": [
+    "activeTab",
+    "storage",
+    "contextMenus",
+    "clipboardRead",
+    "clipboardWrite"
+  ],
+  "host_permissions": ["file:///*", "http://*/*", "https://*/*"],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["file:///*/blank.html", "*://*.atlassian.net/*"],
+      "matches": ["<all_urls>"],
       "js": ["content.js"]
     }
   ],
@@ -28,5 +34,14 @@
       "128": "images/icon128.png"
     },
     "default_title": "PowerPaste"
+  },
+  "commands": {
+    "toggle-powerpaste": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+X",
+        "mac": "Command+Shift+X"
+      },
+      "description": "PowerPaste 토글"
+    }
   }
 }
