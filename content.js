@@ -227,6 +227,74 @@ async function processImages(item) {
   }
 }
 
+// 컨플루언스에 이미지 업로드하는 함수
+async function uploadImageToConfluence(base64Data) {
+  try {
+    // 현재 페이지의 컨플루언스 API 엔드포인트 찾기
+    const pageId = getConfluencePageId();
+    if (!pageId) {
+      return {
+        success: false,
+        error: "컨플루언스 페이지 ID를 찾을 수 없습니다.",
+      };
+    }
+
+    // base64 데이터에서 실제 이미지 데이터 추출
+    const imageData = base64Data.split(",")[1];
+    const binaryData = atob(imageData);
+    const arrayBuffer = new ArrayBuffer(binaryData.length);
+    const uint8Array = new Uint8Array(arrayBuffer);
+    for (let i = 0; i < binaryData.length; i++) {
+      uint8Array[i] = binaryData.charCodeAt(i);
+    }
+    const blob = new Blob([arrayBuffer], { type: "image/png" });
+
+    // FormData 생성
+    const formData = new FormData();
+    formData.append("file", blob, "image.png");
+
+    // 컨플루언스 API 호출
+    const response = await fetch(
+      `/rest/api/content/${pageId}/child/attachment`,
+      {
+        method: "POST",
+        headers: {
+          "X-Atlassian-Token": "no-check",
+        },
+        body: formData,
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      // 컨플루언스의 blob URL 생성
+      const blobUrl = URL.createObjectURL(blob);
+      return {
+        success: true,
+        url: blobUrl,
+        attachmentId: data.results[0].id,
+      };
+    } else {
+      return {
+        success: false,
+        error: `이미지 업로드 실패: ${response.status}`,
+      };
+    }
+  } catch (e) {
+    return {
+      success: false,
+      error: `이미지 업로드 중 오류: ${e.message}`,
+    };
+  }
+}
+
+// 컨플루언스 페이지 ID를 가져오는 함수
+function getConfluencePageId() {
+  // 현재 URL에서 페이지 ID 추출
+  const match = window.location.pathname.match(/\/pages\/(\d+)/);
+  return match ? match[1] : null;
+}
+
 // 내용을 삽입하는 함수
 function insertContent(item, targetElement) {
   if (!targetElement || !targetElement.parentNode) {
@@ -418,71 +486,3 @@ observer.observe(document.body, {
   childList: true,
   subtree: true,
 });
-
-// 컨플루언스에 이미지 업로드하는 함수
-async function uploadImageToConfluence(base64Data) {
-  try {
-    // 현재 페이지의 컨플루언스 API 엔드포인트 찾기
-    const pageId = getConfluencePageId();
-    if (!pageId) {
-      return {
-        success: false,
-        error: "컨플루언스 페이지 ID를 찾을 수 없습니다.",
-      };
-    }
-
-    // base64 데이터에서 실제 이미지 데이터 추출
-    const imageData = base64Data.split(",")[1];
-    const binaryData = atob(imageData);
-    const arrayBuffer = new ArrayBuffer(binaryData.length);
-    const uint8Array = new Uint8Array(arrayBuffer);
-    for (let i = 0; i < binaryData.length; i++) {
-      uint8Array[i] = binaryData.charCodeAt(i);
-    }
-    const blob = new Blob([arrayBuffer], { type: "image/png" });
-
-    // FormData 생성
-    const formData = new FormData();
-    formData.append("file", blob, "image.png");
-
-    // 컨플루언스 API 호출
-    const response = await fetch(
-      `/rest/api/content/${pageId}/child/attachment`,
-      {
-        method: "POST",
-        headers: {
-          "X-Atlassian-Token": "no-check",
-        },
-        body: formData,
-      }
-    );
-
-    if (response.ok) {
-      const data = await response.json();
-      // 컨플루언스의 blob URL 생성
-      const blobUrl = URL.createObjectURL(blob);
-      return {
-        success: true,
-        url: blobUrl,
-        attachmentId: data.results[0].id,
-      };
-    } else {
-      return {
-        success: false,
-        error: `이미지 업로드 실패: ${response.status}`,
-      };
-    }
-  } catch (e) {
-    return {
-      success: false,
-      error: `이미지 업로드 중 오류: ${e.message}`,
-    };
-  }
-}
-
-// 컨플루언스 페이지 ID를 가져오는 함수
-function getConfluencePageId() {
-  // 현재 URL에서 페이지 ID 추출
-  const match = window.location.pathname.match(/\/pages\/(\d+)/);
-  return match ? match[1] : null;
-}
