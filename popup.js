@@ -9,6 +9,17 @@ document.addEventListener("DOMContentLoaded", function () {
     updateStatus(isEnabled);
   });
 
+  // 메시지 리스너 추가
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "updatePowerPasteStatus") {
+      console.log("팝업에서 상태 업데이트 메시지 수신:", message.enabled);
+      toggleSwitch.checked = message.enabled;
+      updateStatus(message.enabled);
+      sendResponse({ success: true });
+    }
+    return true;
+  });
+
   // 토글 스위치 이벤트 리스너
   toggleSwitch.addEventListener("change", function () {
     const isEnabled = toggleSwitch.checked;

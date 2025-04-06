@@ -322,30 +322,30 @@ function insertContent(item, targetElement) {
 function showNotification() {
   const notification = document.createElement("div");
   notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background-color: #4CAF50;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    z-index: 9999;
-    animation: fadeIn 0.3s ease-in-out;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    cursor: pointer;
-  `;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 9999;
+      animation: fadeIn 0.3s ease-in-out;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      cursor: pointer;
+    `;
   notification.innerHTML = `
-    <div style="font-size: 14px; font-weight: 500;">엑셀 테이블이 붙여넣기 되었습니다.</div>
-    <div style="font-size: 11px; margin-top: 4px; opacity: 0.7; font-style: italic; display: flex; align-items: center; gap: 4px;">
-      <span>by PowerPaste</span>
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="16" x2="12" y2="12"></line>
-        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-      </svg>
-    </div>
-  `;
+      <div style="font-size: 14px; font-weight: 500;">엑셀 테이블이 붙여넣기 되었습니다.</div>
+      <div style="font-size: 11px; margin-top: 4px; opacity: 0.7; font-style: italic; display: flex; align-items: center; gap: 4px;">
+        <span>by PowerPaste</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </div>
+    `;
 
   document.body.appendChild(notification);
 

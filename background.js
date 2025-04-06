@@ -44,9 +44,15 @@ chrome.commands.onCommand.addListener((command) => {
       const newState = !(result.powerPasteEnabled !== false); // 기본값은 true
       console.log("새로운 PowerPaste 상태:", newState);
 
-      // 상태 저장
+      // 상태 저장 및 즉시 업데이트
       chrome.storage.local.set({ powerPasteEnabled: newState }, function () {
         console.log("PowerPaste 상태 저장 완료");
+
+        // 팝업에 상태 변경 알림
+        chrome.runtime.sendMessage({
+          action: "updatePowerPasteStatus",
+          enabled: newState,
+        });
 
         // 모든 탭에 상태 변경 알림
         chrome.tabs.query({}, function (tabs) {
