@@ -100,7 +100,22 @@ function convertStylesToInline(element) {
         value !== "0%" &&
         value !== "0"
       ) {
-        inlineStyle += `${property}:${value};`;
+        // 색상 속성인 경우 CSS 변수 매칭 시도
+        if (property === "background-color" || property === "color") {
+          const hexColor = value.startsWith("rgb") ? rgbToHex(value) : value;
+          if (hexColor && hexColor.startsWith("#")) {
+            const nearestVar = findNearestColorVariable(hexColor);
+            if (nearestVar) {
+              inlineStyle += `${property}:var(${nearestVar});`;
+            } else {
+              inlineStyle += `${property}:${value};`;
+            }
+          } else {
+            inlineStyle += `${property}:${value};`;
+          }
+        } else {
+          inlineStyle += `${property}:${value};`;
+        }
       }
     });
 
@@ -455,34 +470,207 @@ async function pasteHandler(event) {
 // Add paste event listener to the document
 document.addEventListener("paste", pasteHandler, true); // capture phase에서 처리
 
-// Function to add paste event listener to iframe
+// URL 변경 감지 및 iframe paste 이벤트 등록
+function setupURLChangeDetection() {
+  console.log("URL 변경 감지 설정 시작");
+
+  // 현재 URL 저장
+  let currentURL = window.location.href;
+
+  // history.pushState와 popstate 이벤트 감시
+  const originalPushState = history.pushState;
+  history.pushState = function () {
+    originalPushState.apply(this, arguments);
+    handleURLChange();
+  };
+
+  window.addEventListener("popstate", handleURLChange);
+
+  // DOM 변경 감시 (iframe 추가/제거)
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node.tagName === "IFRAME") {
+          console.log("새로운 iframe 감지됨");
+          addPasteHandlerToIframe(node);
+        } else if (node.querySelectorAll) {
+          node.querySelectorAll("iframe").forEach(addPasteHandlerToIframe);
+        }
+      });
+    });
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+
+  // URL 변경 처리 함수
+  function handleURLChange() {
+    const newURL = window.location.href;
+    if (newURL !== currentURL) {
+      console.log("URL 변경 감지:", newURL);
+      currentURL = newURL;
+
+      // 모든 iframe에 paste 이벤트 핸들러 재등록
+      document.querySelectorAll("iframe").forEach(addPasteHandlerToIframe);
+    }
+  }
+
+  // 초기 iframe paste 이벤트 등록
+  document.querySelectorAll("iframe").forEach(addPasteHandlerToIframe);
+}
+
+// iframe에 paste 이벤트 핸들러 추가
 function addPasteHandlerToIframe(iframe) {
   try {
     const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-    iframeDoc.addEventListener("paste", pasteHandler, true); // capture phase에서 처리
+    iframeDoc.addEventListener("paste", pasteHandler, true);
+    console.log("iframe에 paste 이벤트 핸들러 등록됨");
   } catch (e) {
-    console.error("Error adding paste handler to iframe:", e);
+    console.error("iframe에 paste 이벤트 핸들러 등록 실패:", e);
   }
 }
 
-// Add paste event listener to all existing iframes
-document.querySelectorAll("iframe").forEach(addPasteHandlerToIframe);
+// 초기 설정 실행
+setupURLChangeDetection();
 
-// Observe DOM changes to add paste handler to dynamically added iframes
-const observer = new MutationObserver((mutations) => {
-  mutations.forEach((mutation) => {
-    mutation.addedNodes.forEach((node) => {
-      if (node.tagName === "IFRAME") {
-        addPasteHandlerToIframe(node);
-      } else if (node.querySelectorAll) {
-        node.querySelectorAll("iframe").forEach(addPasteHandlerToIframe);
+// 색상 유사도 계산 함수
+function getColorDistance(color1, color2) {
+  const r1 = parseInt(color1.slice(1, 3), 16);
+  const g1 = parseInt(color1.slice(3, 5), 16);
+  const b1 = parseInt(color1.slice(5, 7), 16);
+
+  const r2 = parseInt(color2.slice(1, 3), 16);
+  const g2 = parseInt(color2.slice(3, 5), 16);
+  const b2 = parseInt(color2.slice(5, 7), 16);
+
+  return Math.sqrt(
+    Math.pow(r2 - r1, 2) + Math.pow(g2 - g1, 2) + Math.pow(b2 - b1, 2)
+  );
+}
+
+// 가장 가까운 CSS 변수 색상 찾기
+function findNearestColorVariable(hexColor) {
+  const style = getComputedStyle(document.documentElement);
+  const cssVars = Array.from(style).filter((prop) => prop.startsWith("--"));
+
+  let nearestVar = null;
+  let minDistance = Infinity;
+
+  cssVars.forEach((cssVar) => {
+    const varValue = style.getPropertyValue(cssVar).trim();
+    if (varValue.startsWith("#")) {
+      const distance = getColorDistance(hexColor, varValue);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestVar = cssVar;
       }
+    }
+  });
+
+  return nearestVar;
+}
+
+// RGB 색상을 HEX로 변환
+function rgbToHex(rgb) {
+  const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+  if (!match) return null;
+
+  const r = parseInt(match[1]);
+  const g = parseInt(match[2]);
+  const b = parseInt(match[3]);
+
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+function processTable(table) {
+  console.log("테이블 처리 시작");
+
+  // 테이블 스타일 설정
+  const tableStyle = {
+    borderCollapse: "collapse",
+    width: "100%",
+    margin: "10px 0",
+    fontFamily: "Arial, sans-serif",
+    fontSize: "14px",
+  };
+
+  // 스타일 객체를 동결하여 변경 방지
+  Object.freeze(tableStyle);
+
+  // 테이블에 스타일 적용
+  Object.assign(table.style, tableStyle);
+
+  // 모든 셀에 스타일 적용
+  const cells = table.getElementsByTagName("td");
+  const cellStyle = {
+    border: "1px solid #ddd",
+    padding: "8px",
+    textAlign: "left",
+  };
+
+  // 셀 스타일 객체도 동결
+  Object.freeze(cellStyle);
+
+  Array.from(cells).forEach((cell) => {
+    // 기존 스타일 백업
+    const originalStyle = cell.getAttribute("style");
+
+    // 셀에 스타일 적용
+    Object.assign(cell.style, cellStyle);
+
+    // 배경색 처리
+    const bgColor = cell.style.backgroundColor;
+    if (bgColor) {
+      const hexColor = bgColor.startsWith("rgb") ? rgbToHex(bgColor) : bgColor;
+      if (hexColor) {
+        const nearestVar = findNearestColorVariable(hexColor);
+        if (nearestVar) {
+          cell.style.backgroundColor = `var(${nearestVar})`;
+        }
+      }
+    }
+
+    // 텍스트 색상 처리
+    const textColor = cell.style.color;
+    if (textColor) {
+      const hexColor = textColor.startsWith("rgb")
+        ? rgbToHex(textColor)
+        : textColor;
+      if (hexColor) {
+        const nearestVar = findNearestColorVariable(hexColor);
+        if (nearestVar) {
+          cell.style.color = `var(${nearestVar})`;
+        }
+      }
+    }
+
+    // data-mce-style 속성 제거
+    cell.removeAttribute("data-mce-style");
+
+    // 스타일 변경 감지 및 방지
+    const styleObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "data-mce-style"
+        ) {
+          cell.removeAttribute("data-mce-style");
+          if (originalStyle) {
+            cell.setAttribute("style", originalStyle);
+          }
+        }
+      });
+    });
+
+    // 셀의 속성 변경 감시
+    styleObserver.observe(cell, {
+      attributes: true,
+      attributeFilter: ["data-mce-style", "style"],
     });
   });
-});
 
-// Start observing the document with the configured parameters
-observer.observe(document.body, {
-  childList: true,
-  subtree: true,
-});
+  console.log("테이블 처리 완료");
+  return table;
+}
