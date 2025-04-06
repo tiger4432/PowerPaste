@@ -324,22 +324,23 @@ function updateIndicator() {
       top: 0;
       left: 0;
       right: 0;
-      height: 10px;
+      height: 5px;
       z-index: 999999;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.2s ease;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     `;
     document.body.appendChild(indicatorElement);
     console.log("상태 표시기 요소 생성 완료");
   }
 
-  if (isPowerPasteEnabled) {
-    indicatorElement.style.backgroundColor = "#2E7D32"; // 더 진한 초록색
-    console.log("상태 표시기 색상 변경: 활성화");
-  } else {
-    indicatorElement.style.backgroundColor = "transparent";
-    console.log("상태 표시기 색상 변경: 비활성화");
-  }
+  // 즉시 색상 변경
+  indicatorElement.style.backgroundColor = isPowerPasteEnabled
+    ? "#2E7D32"
+    : "transparent";
+  console.log(
+    "상태 표시기 색상 변경:",
+    isPowerPasteEnabled ? "활성화" : "비활성화"
+  );
 }
 
 // 초기 상태 표시기 생성
