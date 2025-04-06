@@ -324,7 +324,7 @@ function updateIndicator() {
       top: 0;
       left: 0;
       right: 0;
-      height: 5px;
+      height: 10px;
       z-index: 999999;
       transition: background-color 0.3s ease;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
